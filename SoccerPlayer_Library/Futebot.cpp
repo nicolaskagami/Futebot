@@ -8,6 +8,18 @@
 #include <stdlib.h>
 #include <math.h>
 
+class Trapezium
+{
+    public:
+        float alpha;
+        float beta;
+        float gamma;
+        float theta;
+        Trapezium(float a, float b, float c, float d)
+        { alpha = a; beta=b; gamma=c; theta=d; }
+};
+
+
 float BallAngle_LeftBack;
 float BallAngle_Left;
 float BallAngle_Front;
@@ -181,274 +193,64 @@ void fuzzification(float BallAngle, float TargetAngle)
     TargetAngle_LeftBack = trapezium(2.2,2.5,3.2,3.2,TargetAngle);
 
 }
+void inferenceInstance(float BallCondition, float TargetCondition, Trapezium LeftTrapezium, Trapezium RightTrapezium)
+{
+    if(BallCondition && TargetCondition)
+    {
+        LMSumOfAreaX += getAreax(LeftTrapezium.alpha,LeftTrapezium.beta,LeftTrapezium.gamma,LeftTrapezium.theta,fmin(BallCondition,TargetCondition));
+        LMSumOfArea += getArea(LeftTrapezium.alpha,LeftTrapezium.beta,LeftTrapezium.gamma,LeftTrapezium.theta,fmin(BallCondition,TargetCondition));
+        RMSumOfAreaX += getAreax(RightTrapezium.alpha,RightTrapezium.beta,RightTrapezium.gamma,RightTrapezium.theta,fmin(BallCondition,TargetCondition));
+        RMSumOfArea += getArea(RightTrapezium.alpha,RightTrapezium.beta,RightTrapezium.gamma,RightTrapezium.theta,fmin(BallCondition,TargetCondition));
+    }
+}
 void inference()
 {
+
     //(-1,-1,-0.7,-0.5,) //Back
     //(-0.6,-0.4,-0.1,0.1,) //SlightBack
     //(-0.1,0.1,0.4,0.6,) //SlightForw
     //(0.5,0.7,1,1,) //Forw
+
+    Trapezium Back(-1,-1,-0.7,-0.5);
+    Trapezium SlightBack(-0.6,-0.4,-0.1,0.1);
+    Trapezium SlightForward(-0.1,0.1,0.4,0.6);
+    Trapezium Forward(0.5,0.7,1,1);
 
 
     LMSumOfAreaX = 0;
     LMSumOfArea = 0;
     RMSumOfAreaX = 0;
     RMSumOfArea = 0;
+    
+    inferenceInstance(BallAngle_LeftBack,TargetAngle_LeftBack,SlightBack,Forward);
+    inferenceInstance(BallAngle_Left,TargetAngle_LeftBack,SlightForward,Forward);
+    inferenceInstance(BallAngle_Front,TargetAngle_LeftBack,Forward,Back);
+    inferenceInstance(BallAngle_Right,TargetAngle_LeftBack,Forward,SlightForward);
+    inferenceInstance(BallAngle_RightBack,TargetAngle_LeftBack,SlightBack,Forward);
 
-    if(BallAngle_LeftBack && TargetAngle_LeftBack)
-    {   
-    //printf("Ativado:1\n");
-        //LM = SlightBack
-        LMSumOfAreaX += getAreax(-0.6,-0.4,-0.1,0.1,fmin(BallAngle_LeftBack,TargetAngle_LeftBack));
-        LMSumOfArea += getArea(-0.6,-0.4,-0.1,0.1,fmin(BallAngle_LeftBack,TargetAngle_LeftBack));
-        //RM = Forward
-        RMSumOfAreaX += getAreax(0.5,0.7,1,1,fmin(BallAngle_LeftBack,TargetAngle_LeftBack));
-        RMSumOfArea += getArea(0.5,0.7,1,1,fmin(BallAngle_LeftBack,TargetAngle_LeftBack));
-    }
-    if(BallAngle_Left && TargetAngle_LeftBack)
-    {   
-    //printf("Ativado:2\n");
-        //LM = SlightForw
-        LMSumOfAreaX += getAreax(-0.1,0.1,0.4,0.6,fmin(BallAngle_Left,TargetAngle_LeftBack));
-        LMSumOfArea += getArea(-0.1,0.1,0.4,0.6,fmin(BallAngle_Left,TargetAngle_LeftBack));
-        //RM = Forward
-        RMSumOfAreaX += getAreax(0.5,0.7,1,1,fmin(BallAngle_Left,TargetAngle_LeftBack));
-        RMSumOfArea += getArea(0.5,0.7,1,1,fmin(BallAngle_Left,TargetAngle_LeftBack));
-    }
-    if(BallAngle_Front && TargetAngle_LeftBack)
-    {   
-    //printf("Ativado:3\n");
-        //LM = Forward 
-        LMSumOfAreaX += getAreax(0.5,0.7,1,1,fmin(BallAngle_Front,TargetAngle_LeftBack));
-        LMSumOfArea += getArea(0.5,0.7,1,1,fmin(BallAngle_Front,TargetAngle_LeftBack));
-        //RM = Back
-        RMSumOfAreaX += getAreax(-1,-1,-0.7,-0.5,fmin(BallAngle_Front,TargetAngle_LeftBack));
-        RMSumOfArea += getArea(-1,-1,-0.7,-0.5,fmin(BallAngle_Front,TargetAngle_LeftBack));
-    }
-    if(BallAngle_Right && TargetAngle_LeftBack)
-    {   
-    //printf("Ativado:4\n");
-        //LM = Forward 
-        LMSumOfAreaX += getAreax(0.5,0.7,1,1,fmin(BallAngle_Right,TargetAngle_LeftBack));
-        LMSumOfArea += getArea(0.5,0.7,1,1,fmin(BallAngle_Right,TargetAngle_LeftBack));
-        //RM = SlightForward
-        RMSumOfAreaX += getAreax(-0.1,0.1,0.4,0.6,fmin(BallAngle_Right,TargetAngle_LeftBack));
-        RMSumOfArea += getArea(-0.1,0.1,0.4,0.6,fmin(BallAngle_Right,TargetAngle_LeftBack));
-    }
-    if(BallAngle_RightBack && TargetAngle_LeftBack)
-    {   
-    //printf("Ativado:5\n");
-        //LM = SlightBack
-        LMSumOfAreaX += getAreax(-0.6,-0.4,-0.1,0.1,fmin(BallAngle_RightBack,TargetAngle_LeftBack));
-        LMSumOfArea += getArea(-0.6,-0.4,-0.1,0.1,fmin(BallAngle_RightBack,TargetAngle_LeftBack));
-        //RM = Forward
-        RMSumOfAreaX += getAreax(0.5,0.7,1,1,fmin(BallAngle_RightBack,TargetAngle_LeftBack));
-        RMSumOfArea += getArea(0.5,0.7,1,1,fmin(BallAngle_RightBack,TargetAngle_LeftBack));
-    }
+    inferenceInstance(BallAngle_LeftBack,TargetAngle_Left,SlightBack,Forward);
+    inferenceInstance(BallAngle_Left,TargetAngle_Left,SlightForward,Forward);
+    inferenceInstance(BallAngle_Front,TargetAngle_Left,Forward,Back);
+    inferenceInstance(BallAngle_Right,TargetAngle_Left,Forward,Back);
+    inferenceInstance(BallAngle_RightBack,TargetAngle_Left,SlightBack,Forward);
 
-    if(BallAngle_LeftBack && TargetAngle_Left)
-    {   
-    //printf("Ativado:B1\n");
-        //LM = SlightBack
-        LMSumOfAreaX += getAreax(-0.6,-0.4,-0.1,0.1,fmin(BallAngle_LeftBack,TargetAngle_Left));
-        LMSumOfArea += getArea(-0.6,-0.4,-0.1,0.1,fmin(BallAngle_LeftBack,TargetAngle_Left));
-        //RM = Forward
-        RMSumOfAreaX += getAreax(0.5,0.7,1,1,fmin(BallAngle_LeftBack,TargetAngle_Left));
-        RMSumOfArea += getArea(0.5,0.7,1,1,fmin(BallAngle_LeftBack,TargetAngle_Left));
-    }
-    if(BallAngle_Left && TargetAngle_Left)
-    {   
-    //printf("Ativado:B2\n");
-        //LM = SlightForw
-        LMSumOfAreaX += getAreax(-0.1,0.1,0.4,0.6,fmin(BallAngle_Left,TargetAngle_Left));
-        LMSumOfArea += getArea(-0.1,0.1,0.4,0.6,fmin(BallAngle_Left,TargetAngle_Left));
-        //RM = Forward
-        RMSumOfAreaX += getAreax(0.5,0.7,1,1,fmin(BallAngle_Left,TargetAngle_Left));
-        RMSumOfArea += getArea(0.5,0.7,1,1,fmin(BallAngle_Left,TargetAngle_Left));
-    }
-    if(BallAngle_Front && TargetAngle_Left)
-    {   
-    //printf("Ativado:B3\n");
-        //LM = Forward 
-        LMSumOfAreaX += getAreax(0.5,0.7,1,1,fmin(BallAngle_Front,TargetAngle_Left));
-        LMSumOfArea += getArea(0.5,0.7,1,1,fmin(BallAngle_Front,TargetAngle_Left));
-        //RM = Back
-        RMSumOfAreaX += getAreax(-1,-1,-0.7,-0.5,fmin(BallAngle_Front,TargetAngle_Left));
-        RMSumOfArea += getArea(-1,-1,-0.7,-0.5,fmin(BallAngle_Front,TargetAngle_Left));
-    }
-    if(BallAngle_Right && TargetAngle_Left)
-    {   
-    //printf("Ativado:B4\n");
-        //LM = Forward 
-        LMSumOfAreaX += getAreax(0.5,0.7,1,1,fmin(BallAngle_Right,TargetAngle_Left));
-        LMSumOfArea += getArea(0.5,0.7,1,1,fmin(BallAngle_Right,TargetAngle_Left));
-        //RM = Back
-        RMSumOfAreaX += getAreax(-1,-1,-0.7,-0.5,fmin(BallAngle_Right,TargetAngle_Left));
-        RMSumOfArea += getArea(-1,-1,-0.7,-0.5,fmin(BallAngle_Right,TargetAngle_Left));
-    }
-    if(BallAngle_RightBack && TargetAngle_Left)
-    {   
-    //printf("Ativado:B5\n");
-        //LM = SlightBack
-        LMSumOfAreaX += getAreax(-0.6,-0.4,-0.1,0.1,fmin(BallAngle_RightBack,TargetAngle_Left));
-        LMSumOfArea += getArea(-0.6,-0.4,-0.1,0.1,fmin(BallAngle_RightBack,TargetAngle_Left));
-        //RM = Forward
-        RMSumOfAreaX += getAreax(0.5,0.7,1,1,fmin(BallAngle_RightBack,TargetAngle_Left));
-        RMSumOfArea += getArea(0.5,0.7,1,1,fmin(BallAngle_RightBack,TargetAngle_Left));
-    }
+    inferenceInstance(BallAngle_LeftBack,TargetAngle_Front,Back,Forward);
+    inferenceInstance(BallAngle_Left,TargetAngle_Front,Back,Forward);
+    inferenceInstance(BallAngle_Front,TargetAngle_Front,Forward,Forward);
+    inferenceInstance(BallAngle_Right,TargetAngle_Front,Forward,Back);
+    inferenceInstance(BallAngle_RightBack,TargetAngle_Front,Back,Forward);
 
-    if(BallAngle_LeftBack && TargetAngle_Front)
-    {   
-        //printf("Ativado:C1\n");
-        //LM = Back
-        LMSumOfAreaX += getAreax(-1,-1,-0.7,-0.5,fmin(BallAngle_LeftBack,TargetAngle_Front));
-        LMSumOfArea += getArea(-1,-1,-0.7,-0.5,fmin(BallAngle_LeftBack,TargetAngle_Front));
-        //RM = Forward
-        RMSumOfAreaX += getAreax(0.5,0.7,1,1,fmin(BallAngle_LeftBack,TargetAngle_Front));
-        RMSumOfArea += getArea(0.5,0.7,1,1,fmin(BallAngle_LeftBack,TargetAngle_Front));
-    }
-    if(BallAngle_Left && TargetAngle_Front)
-    {   
-        //printf("Ativado:C2\n");
-        //LM = Back
-        LMSumOfAreaX += getAreax(-1,-1,-0.7,-0.5,fmin(BallAngle_Left,TargetAngle_Front));
-        LMSumOfArea += getArea(-1,-1,-0.7,-0.5,fmin(BallAngle_Left,TargetAngle_Front));
-        //RM = Forward
-        RMSumOfAreaX += getAreax(0.5,0.7,1,1,fmin(BallAngle_Left,TargetAngle_Front));
-        RMSumOfArea += getArea(0.5,0.7,1,1,fmin(BallAngle_Left,TargetAngle_Front));
-    }
-    if(BallAngle_Front && TargetAngle_Front)
-    {   
-        //printf("Ativado:C3\n");
-        //LM = Forward 
-        LMSumOfAreaX += getAreax(0.5,0.7,1,1,fmin(BallAngle_Front,TargetAngle_Front));
-        LMSumOfArea += getArea(0.5,0.7,1,1,fmin(BallAngle_Front,TargetAngle_Front));
-        //RM = Forward 
-        RMSumOfAreaX += getAreax(0.5,0.7,1,1,fmin(BallAngle_Front,TargetAngle_Front));
-        RMSumOfArea += getArea(0.5,0.7,1,1,fmin(BallAngle_Front,TargetAngle_Front));
-    }
-    if(BallAngle_Right && TargetAngle_Front)
-    {   
-        //printf("Ativado:C4\n");
-        //LM = Forward 
-        LMSumOfAreaX += getAreax(0.5,0.7,1,1,fmin(BallAngle_Right,TargetAngle_Front));
-        LMSumOfArea += getArea(0.5,0.7,1,1,fmin(BallAngle_Right,TargetAngle_Front));
-        //RM = Back
-        RMSumOfAreaX += getAreax(-1,-1,-0.7,-0.5,fmin(BallAngle_Right,TargetAngle_Front));
-        RMSumOfArea += getArea(-1,-1,-0.7,-0.5,fmin(BallAngle_Right,TargetAngle_Front));
-    }
-    if(BallAngle_RightBack && TargetAngle_Front)
-    {   
-        //printf("Ativado:C5\n");
-        //LM = Back
-        LMSumOfAreaX += getAreax(-1,-1,-0.7,-0.5,fmin(BallAngle_RightBack,TargetAngle_Front));
-        LMSumOfArea += getArea(-1,-1,-0.7,-0.5,fmin(BallAngle_RightBack,TargetAngle_Front));
-        //RM = Forward
-        RMSumOfAreaX += getAreax(0.5,0.7,1,1,fmin(BallAngle_RightBack,TargetAngle_Front));
-        RMSumOfArea += getArea(0.5,0.7,1,1,fmin(BallAngle_RightBack,TargetAngle_Front));
-    }
+    inferenceInstance(BallAngle_LeftBack,TargetAngle_Right,Forward,SlightBack);
+    inferenceInstance(BallAngle_Left,TargetAngle_Right,Back,Forward);
+    inferenceInstance(BallAngle_Front,TargetAngle_Right,Back,Forward);
+    inferenceInstance(BallAngle_Right,TargetAngle_Right,Forward,SlightForward);
+    inferenceInstance(BallAngle_RightBack,TargetAngle_Right,Forward,SlightBack);
 
-    if(BallAngle_LeftBack && TargetAngle_Right)
-    {   
-        //printf("Ativado:D1\n");
-        //LM = Forward
-        LMSumOfAreaX += getAreax(0.5,0.7,1,1,fmin(BallAngle_LeftBack,TargetAngle_Right));
-        LMSumOfArea += getArea(0.5,0.7,1,1,fmin(BallAngle_LeftBack,TargetAngle_Right));
-        //RM = SlightBack
-        RMSumOfAreaX += getAreax(-0.6,-0.4,-0.1,0.1,fmin(BallAngle_LeftBack,TargetAngle_Right));
-        RMSumOfArea += getArea(-0.6,-0.4,-0.1,0.1,fmin(BallAngle_LeftBack,TargetAngle_Right));
-    }
-    if(BallAngle_Left && TargetAngle_Right)
-    {   
-        //printf("Ativado:D2\n");
-        //LM = Back
-        LMSumOfAreaX += getAreax(-1,-1,-0.7,-0.5,fmin(BallAngle_Left,TargetAngle_Right));
-        LMSumOfArea += getArea(-1,-1,-0.7,-0.5,fmin(BallAngle_Left,TargetAngle_Right));
-        //RM = Forward 
-        RMSumOfAreaX += getAreax(0.5,0.7,1,1,fmin(BallAngle_Left,TargetAngle_Right));
-        RMSumOfArea += getArea(0.5,0.7,1,1,fmin(BallAngle_Left,TargetAngle_Right));
-    }
-    if(BallAngle_Front && TargetAngle_Right)
-    {   
-        //printf("Ativado:D3\n");
-        //LM = Back
-        LMSumOfAreaX += getAreax(-1,-1,-0.7,-0.5,fmin(BallAngle_Front,TargetAngle_Right));
-        LMSumOfArea += getArea(-1,-1,-0.7,-0.5,fmin(BallAngle_Front,TargetAngle_Right));
-        //RM = Forward 
-        RMSumOfAreaX += getAreax(0.5,0.7,1,1,fmin(BallAngle_Front,TargetAngle_Right));
-        RMSumOfArea += getArea(0.5,0.7,1,1,fmin(BallAngle_Front,TargetAngle_Right));
-    }
-    if(BallAngle_Right && TargetAngle_Right)
-    {   
-        //printf("Ativado:D4\n");
-        //LM = Forward
-        LMSumOfAreaX += getAreax(0.5,0.7,1,1,fmin(BallAngle_Right,TargetAngle_Right));
-        LMSumOfArea += getArea(0.5,0.7,1,1,fmin(BallAngle_Right,TargetAngle_Right));
-        //RM = SlightForw
-        RMSumOfAreaX += getAreax(-0.1,0.1,0.4,0.6,fmin(BallAngle_Right,TargetAngle_Right));
-        RMSumOfArea += getArea(-0.1,0.1,0.4,0.6,fmin(BallAngle_Right,TargetAngle_Right));
-    }
-    if(BallAngle_RightBack && TargetAngle_Right)
-    {   
-        //printf("Ativado:D5\n");
-        //LM = Forward
-        LMSumOfAreaX += getAreax(0.5,0.7,1,1,fmin(BallAngle_RightBack,TargetAngle_Right));
-        LMSumOfArea += getArea(0.5,0.7,1,1,fmin(BallAngle_RightBack,TargetAngle_Right));
-        //RM = SlightBack
-        RMSumOfAreaX += getAreax(-0.6,-0.4,-0.1,0.1,fmin(BallAngle_RightBack,TargetAngle_Right));
-        RMSumOfArea += getArea(-0.6,-0.4,-0.1,0.1,fmin(BallAngle_RightBack,TargetAngle_Right));
-    }
-     
-    if(BallAngle_LeftBack && TargetAngle_RightBack)
-    {   
-        //printf("Ativado:E1\n");
-        //LM = SlightBack
-        LMSumOfAreaX += getAreax(-0.6,-0.4,-0.1,0.1,fmin(BallAngle_LeftBack,TargetAngle_RightBack));
-        LMSumOfArea += getArea(-0.6,-0.4,-0.1,0.1,fmin(BallAngle_LeftBack,TargetAngle_RightBack));
-        //RM = Forward
-        RMSumOfAreaX += getAreax(0.5,0.7,1,1,fmin(BallAngle_LeftBack,TargetAngle_RightBack));
-        RMSumOfArea += getArea(0.5,0.7,1,1,fmin(BallAngle_LeftBack,TargetAngle_RightBack));
-    }
-    if(BallAngle_Left && TargetAngle_RightBack)
-    {   
-        //printf("Ativado:E2\n");
-        //LM = SlightForw
-        LMSumOfAreaX += getAreax(-0.1,0.1,0.4,0.6,fmin(BallAngle_Left,TargetAngle_RightBack));
-        LMSumOfArea += getArea(-0.1,0.1,0.4,0.6,fmin(BallAngle_Left,TargetAngle_RightBack));
-        //RM = Forward
-        RMSumOfAreaX += getAreax(0.5,0.7,1,1,fmin(BallAngle_Left,TargetAngle_RightBack));
-        RMSumOfArea += getArea(0.5,0.7,1,1,fmin(BallAngle_Left,TargetAngle_RightBack));
-    }
-    if(BallAngle_Front && TargetAngle_RightBack)
-    {   
-        //printf("Ativado:E3\n");
-        //LM = Forward 
-        LMSumOfAreaX += getAreax(0.5,0.7,1,1,fmin(BallAngle_Front,TargetAngle_RightBack));
-        LMSumOfArea += getArea(0.5,0.7,1,1,fmin(BallAngle_Front,TargetAngle_RightBack));
-        //RM = Back
-        RMSumOfAreaX += getAreax(-1,-1,-0.7,-0.5,fmin(BallAngle_Front,TargetAngle_RightBack));
-        RMSumOfArea += getArea(-1,-1,-0.7,-0.5,fmin(BallAngle_Front,TargetAngle_RightBack));
-    }
-    if(BallAngle_Right && TargetAngle_RightBack)
-    {   
-        //printf("Ativado:E4\n");
-        //LM = Forward 
-        LMSumOfAreaX += getAreax(0.5,0.7,1,1,fmin(BallAngle_Right,TargetAngle_RightBack));
-        LMSumOfArea += getArea(0.5,0.7,1,1,fmin(BallAngle_Right,TargetAngle_RightBack));
-        //RM = SlightForward
-        RMSumOfAreaX += getAreax(-0.1,0.1,0.4,0.6,fmin(BallAngle_Right,TargetAngle_RightBack));
-        RMSumOfArea += getArea(-0.1,0.1,0.4,0.6,fmin(BallAngle_Right,TargetAngle_RightBack));
-    }
-    if(BallAngle_RightBack && TargetAngle_RightBack)
-    {   
-        //printf("Ativado:E5\n");
-        //LM = SlightBack
-        LMSumOfAreaX += getAreax(-0.6,-0.4,-0.1,0.1,fmin(BallAngle_RightBack,TargetAngle_RightBack));
-        LMSumOfArea += getArea(-0.6,-0.4,-0.1,0.1,fmin(BallAngle_RightBack,TargetAngle_RightBack));
-        //RM = Forward
-        RMSumOfAreaX += getAreax(0.5,0.7,1,1,fmin(BallAngle_RightBack,TargetAngle_RightBack));
-        RMSumOfArea += getArea(0.5,0.7,1,1,fmin(BallAngle_RightBack,TargetAngle_RightBack));
-    }
-
+    inferenceInstance(BallAngle_LeftBack,TargetAngle_RightBack,SlightBack,Forward);
+    inferenceInstance(BallAngle_Left,TargetAngle_RightBack,SlightForward,Forward);
+    inferenceInstance(BallAngle_Front,TargetAngle_RightBack,Forward,Back);
+    inferenceInstance(BallAngle_Right,TargetAngle_RightBack,Forward,SlightForward);
+    inferenceInstance(BallAngle_RightBack,TargetAngle_RightBack,SlightBack,Forward);
 }
 void defuzzify()
 {
