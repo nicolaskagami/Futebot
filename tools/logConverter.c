@@ -20,8 +20,9 @@ int main(int argc, char ** argv)
         outFileName[len-4]= '\0';
         strcat(outFileName,".lrn");
         FILE * outfile = fopen(outFileName,"w");
-        if(file)
+        if(file && outfile)
         {
+            fputs("8 2 20000\n",outfile);
             fgets(lineBuffer,MAX_LINE_CHARS,file);
             char valuesBuffer[8*10];
             char oldForce0[10] = " 0.0";
@@ -29,7 +30,7 @@ int main(int argc, char ** argv)
             int i;
             while(fgets(lineBuffer,MAX_LINE_CHARS,file)!=NULL)
             {
-                aux = strtok(lineBuffer,",");
+                aux = strtok(lineBuffer," ,");
                 for(i=0;i<8&&aux;i++)
                 {
                     strncpy(&valuesBuffer[i*10],aux,10);
