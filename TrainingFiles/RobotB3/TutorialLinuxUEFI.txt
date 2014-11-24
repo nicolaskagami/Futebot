@@ -1,0 +1,37 @@
+Instalando Debian em windows 8.1 UEFI
+
+Windows:
+Desativar fast boot, secure boot e fast startup
+Alocar espaço
+
+Instalar debian
+Não instalar grub.
+
+Trazer imagem live de ubuntu (para casos com secure boot enabled)
+Rodar o live (ENTRAR EM MODO EFI!!!)
+Encontrar o drive do debian root (drive principal)
+Se GPT, utilizar o gdisk (fdisk não serve para GPT, apenas MBR)
+gdisk -l /dev/sda (onde estiver)
+mount /dev/sda6 /mnt/(sda6 ou numero equivalente, localização do root do debian)
+mount /dev/sda2 /mnt/boot/efi/ (sda2 localização do EFI system partition)
+for i in /dev/ /dev/pts /proc/ /sys ; do mount -B $i /mnt/$i ; done
+chroot /mnt/
+(atualizar para conseguir o grub correto sources.list)
+apt-get update
+apt-get install --reinstall grub-efi
+grub-mkconfig -o /boot/grub/grub.cfg (ou equivalente)
+grub-install /dev/sda
+exit
+reboot
+
+mount /dev/sda2 /boot/efi/
+vim /etc/grub.d/40_custom
+add this:
+menuentry "Windows 8" {
+	set root = '(hd0,gpt2)'
+	chainloader /EFI/Microsoft/Boot/bootmgfw.efi
+	boot
+}
+grub-mkconfig -o /boot/grub/grub.cfg (ou equivalente)
+update-grub
+reboot

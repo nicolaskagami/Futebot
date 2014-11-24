@@ -22,12 +22,13 @@ int main(int argc, char ** argv)
         FILE * outfile = fopen(outFileName,"w");
         if(file && outfile)
         {
-            fputs("8 2 20000\n",outfile);
+            fputs("8 2 50000\n",outfile);
             fgets(lineBuffer,MAX_LINE_CHARS,file);
             char valuesBuffer[8*10];
             char oldForce0[10] = " 0.0";
             char oldForce1[10] = " 0.0";
             int i;
+            int j=0;
             while(fgets(lineBuffer,MAX_LINE_CHARS,file)!=NULL)
             {
                 aux = strtok(lineBuffer," ,");
@@ -37,18 +38,22 @@ int main(int argc, char ** argv)
                     aux = strtok(NULL,",\n");
                 }
                 lineBuffer[0] ='\0';
-                for(i=0;i<6;i++)
+                if(j%10 == 0)
                 {
-                    strcat(lineBuffer,&valuesBuffer[10*i]);
+                    for(i=0;i<6;i++)
+                    {
+                        strcat(lineBuffer,&valuesBuffer[10*i]);
+                    }
+                    strcat(lineBuffer,oldForce0);
+                    strcat(lineBuffer,oldForce1);
+                    strcat(lineBuffer,&valuesBuffer[10*6]);
+                    strcat(lineBuffer,&valuesBuffer[10*7]);
+                    strcat(lineBuffer,"\n");
+                    fputs(lineBuffer,outfile);
+                    strncpy(oldForce0,&valuesBuffer[60],10);
+                    strncpy(oldForce1,&valuesBuffer[70],10);
                 }
-                strcat(lineBuffer,oldForce0);
-                strcat(lineBuffer,oldForce1);
-                strcat(lineBuffer,&valuesBuffer[10*6]);
-                strcat(lineBuffer,&valuesBuffer[10*7]);
-                strcat(lineBuffer,"\n");
-                fputs(lineBuffer,outfile);
-                strncpy(oldForce0,&valuesBuffer[60],10);
-                strncpy(oldForce1,&valuesBuffer[70],10);
+                j++;
             }
 
             fclose(file);
